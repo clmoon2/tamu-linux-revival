@@ -1,0 +1,19 @@
+#!/bin/sh
+# A small fetch-style display for TAMU Linux 1.0D (1994).
+# Uses only the tools shipped with the historical distribution.
+
+host=`hostname`
+kernel=`uname -sr`
+arch=`uname -m`
+mem=`cat /proc/meminfo | awk 'NR == 2 { printf "%d / %d KiB", $3 / 1024, $2 / 1024 }'`
+disk=`df -k / | awk 'NR == 2 { printf "%s / %s KiB", $3, $2 }'`
+uptime=`cat /proc/uptime | awk '{ hours = int($1 / 3600); mins = int(($1 % 3600) / 60); printf "%dh %dm", hours, mins }'`
+
+# The logo is original ASCII art, not a university trademark image.
+echo "   .----------------.    root@$host"
+echo '   |  T A M U       |    OS: TAMU Linux 1.0D'
+echo "   |    L I N U X   |    Kernel: $kernel"
+echo "   |       1.0D     |    Architecture: $arch"
+echo "   '----------------'    Memory: $mem"
+echo "                         Disk: $disk"
+echo "                         Uptime: $uptime"
