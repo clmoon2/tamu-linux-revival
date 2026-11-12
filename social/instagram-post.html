@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TAMU Linux on a Framework Pro joke</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 1080px; height: 1350px; overflow: hidden; }
+    body { font-family: "DejaVu Sans", Arial, sans-serif; }
+    .post {
+      position: relative;
+      width: 1080px;
+      height: 1350px;
+      overflow: hidden;
+      color: #faf5ee;
+      background: radial-gradient(circle at 82% 5%, #6b2028 0, transparent 34%),
+                  linear-gradient(145deg, #2b0b10 0%, #16090c 72%);
+    }
+    .post::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .23;
+      background-image: linear-gradient(#8c4047 1px, transparent 1px),
+                        linear-gradient(90deg, #8c4047 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, black, transparent 74%);
+    }
+    .top { position: absolute; left: 72px; top: 66px; right: 72px; display: flex; justify-content: space-between; align-items: center; }
+    .eyebrow { font: 700 21px "DejaVu Sans Mono", monospace; letter-spacing: 3px; color: #e5a5a9; }
+    .badge { border: 2px solid #ad6a70; border-radius: 999px; padding: 12px 19px; font: 700 19px "DejaVu Sans Mono", monospace; letter-spacing: 1px; }
+    .question { position: absolute; left: 72px; top: 164px; width: 920px; font-size: 65px; font-weight: 700; line-height: 1.14; letter-spacing: -3px; }
+    .question span { color: #f5d5d1; }
+    .answer { position: absolute; left: 68px; top: 397px; line-height: .95; }
+    .nah { display: block; color: #ff706e; font-weight: 900; font-size: 150px; letter-spacing: -10px; }
+    .tamu { display: block; margin-top: 8px; font-weight: 900; font-size: 91px; letter-spacing: -6px; white-space: nowrap; }
+    .release { position: absolute; left: 72px; top: 654px; display: flex; align-items: center; gap: 16px; font: 700 23px "DejaVu Sans Mono", monospace; letter-spacing: 1px; }
+    .release .pill { color: #250b0d; background: #ff8580; padding: 10px 16px; border-radius: 5px; }
+    .terminal { position: absolute; left: 70px; top: 738px; width: 940px; height: 380px; overflow: hidden; border: 3px solid #b56a6b; border-radius: 17px; background: #000; box-shadow: 0 24px 70px #0009; }
+    .terminal-bar { height: 47px; padding: 12px 19px; color: #f7eee9; background: #5a2028; font: 700 18px "DejaVu Sans Mono", monospace; letter-spacing: .5px; }
+    .terminal-bar .dots { float: right; color: #e9a09d; letter-spacing: 4px; }
+    .terminal-screen { height: 330px; overflow: hidden; background: #000; }
+    .terminal-screen img { display: block; width: 1188px; height: 660px; max-width: none; image-rendering: pixelated; }
+    .footer { position: absolute; left: 72px; right: 72px; top: 1166px; border-top: 1px solid #a46b6d; padding-top: 30px; }
+    .truth { font: 700 23px "DejaVu Sans Mono", monospace; color: #f6d1ca; letter-spacing: 1px; }
+    .link { margin-top: 19px; font: 21px "DejaVu Sans Mono", monospace; color: #c4a7a8; }
+  </style>
+</head>
+<body>
+  <main class="post" aria-label="Instagram post about TAMU Linux in QEMU">
+    <div class="top"><span class="eyebrow">THE FRAMEWORK ASSUMPTION</span><span class="badge">1994 &gt; BTW</span></div>
+    <div class="question">“Framework Pro?<br><span>Bet you run Arch.”</span></div>
+    <div class="answer"><span class="nah">nah.</span><span class="tamu">TAMU LINUX</span></div>
+    <div class="release"><span class="pill">1.0D</span><span>THE 1994 RELEASE</span></div>
+    <div class="terminal"><div class="terminal-bar">root@tamu:~ <span class="dots">● ● ●</span></div><div class="terminal-screen"><img src="../screenshots/tamu-fetch.png" alt="Real tamu-fetch output in the TAMU Linux QEMU guest"></div></div>
+    <div class="footer"><div class="truth">REAL GUEST SCREENSHOT · RUNNING IN QEMU</div><div class="link">github.com/clmoon2/tamu-linux-fetch</div></div>
+  </main>
+</body>
+</html>
