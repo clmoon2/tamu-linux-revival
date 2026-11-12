@@ -1,0 +1,7 @@
+/build/
+*.qcow2
+*.raw
+*.img
+*.ppm
+__pycache__/
+*.pyc

@@ -1,0 +1,16 @@
+# XFree86 2.1 configuration for QEMU's generic VGA16 mode.
+# The original installer selects SVGA but leaves no working Xconfig.
+RGBPath "/usr/X386/lib/X11/rgb"
+FontPath "/usr/X386/lib/X11/fonts/misc/,/usr/X386/lib/X11/fonts/Speedo,/usr/X386/lib/X11/fonts/75dpi/"
+Keyboard
+  AutoRepeat 500 5
+  ServerNumLock
+PS/2 "/dev/psaux"
+  Emulate3Buttons
+vga16
+  Virtual 640 480
+  ViewPort 0 0
+  Modes "33"
+  Clocks 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+ModeDB
+  "33" 1 640 664 704 832 480 489 492 520

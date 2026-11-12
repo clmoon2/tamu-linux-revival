@@ -1,41 +1,45 @@
-# tamu-fetch
+# TAMU Linux 1.0D in QEMU
 
-A tiny fetch-style system information script for [TAMU Linux 1.0D](https://mirror.math.princeton.edu/pub/oldlinux/Linux.old/distributions/TAMU/TAMU-1.0D/), the 1994 Texas A&M Linux release with a Linux 1.0 kernel. It runs in the original guest's Bash 1.13.1-CWRU and reads the guest's actual username, hostname, kernel, architecture, memory, disk use, and uptime. No modern Bash or external packages are required.
+Rebuild the **1994 TAMU Linux 1.0D** release from its archived boot floppy and 21 binary floppies, then run it in an isolated QEMU 486 VM. The builder downloads and checks the original media, drives the original installer, applies a small XFree86 VGA16 configuration, installs `tamu-fetch`, and boots the result to check the kernel, shell, fetch output, and desktop.
 
-This is an independent script, not Neofetch or Fastfetch. It targets the working 1.0D release, not the earlier 1992 media.
+This is the original Linux 1.0-era system inside a VM. It is not a port to current laptop hardware or the earlier 1992 TAMU release.
 
-![tamu-fetch in the TAMU Linux VM](screenshots/tamu-fetch.png)
+| Original console | Original XFree86/FVWM/XFM desktop |
+| --- | --- |
+| ![TAMU Linux 1.0D running tamu-fetch](screenshots/tamu-fetch.png) | ![TAMU Linux 1.0D desktop in QEMU](screenshots/tamu-desktop.png) |
 
-## Install in a TAMU Linux guest
+## Build and run
 
-Copy `tamu-fetch` into the guest, then run:
+On Linux Mint or Ubuntu, install the host tools:
 
 ```sh
-chmod +x tamu-fetch
-./tamu-fetch
+sudo apt install python3 qemu-system-x86 qemu-utils tesseract-ocr e2fsprogs
 ```
 
-The seven-row ASCII logo, colored labels, and terminal palette use the old console's ANSI colors. Color appears only on a terminal; set `NO_COLOR=1` to disable it.
+Then run from this repository:
 
-For my QEMU guest without networking, I copied the script into an offline copy of its virtual disk and verified the installed file matched the repository copy byte for byte before booting. Avoid editing a disk while its VM is running.
+```sh
+python3 tools/build.py
+./run.sh
+```
 
-The screenshot was captured from a QEMU VM running TAMU Linux 1.0D with XFree86 2.1, FVWM and XFM. The script works from the text console too.
+The build downloads about 31 MB of original media from the [Princeton OldLinux mirror](https://mirror.math.princeton.edu/pub/oldlinux/Linux.old/distributions/TAMU/TAMU-1.0D/bin/3inch/). It takes a few minutes on the tested host and needs roughly 1 GB of free space while building. The resulting image is `build/tamu-1.0d.qcow2`. `run.sh` binds VNC to `127.0.0.1::5911`; connect with any VNC viewer. Log in as `root` with no password, run `tamu-fetch`, and run `startx` for the desktop. Exit X with Ctrl+Alt+Backspace, run `halt`, then enter `quit` in the QEMU monitor in the launching terminal.
 
-![TAMU Linux 1.0D desktop in QEMU](screenshots/tamu-desktop.png)
+The guest has no network device. VNC listens only on the host loopback address. To use another port, run `./run.sh --vnc-port 5923`. The builder uses loopback port 5922 by default; change it with `python3 tools/build.py --vnc-port 5924`. An existing output image is never overwritten; choose another path with `--output` for another build.
 
-## Share image
+## What the builder checks
 
-The [1080 × 1350 Instagram image](social/instagram-post.png) uses the real guest screenshot and labels it as a QEMU VM. Its editable [HTML source](social/instagram-post.html) is included.
+1. SHA-256 of the original boot image and all 21 binary images against [pinned values](checksums/sha256.txt). These values were recorded for this project; they are **not upstream-authenticated signatures**.
+2. Every installer prompt and floppy request, using QEMU monitor screenshots plus Tesseract OCR with timeouts. No fixed sleep substitutes for disk installation progress.
+3. A reboot from the fresh hard disk, reporting Linux 1.0 and Bash 1.13.1-CWRU. The [release announcement](https://mirror.math.princeton.edu/pub/oldlinux/Linux.old/distributions/TAMU/TAMU-1.0D/ANNOUNCE) lists Bash 1.13.5; the shell version here is the value observed inside the installed guest.
+4. Byte-for-byte installation of our [minimal X configuration](config/Xconfig.tamu) and [fetch script](tamu-fetch), a 640 × 480 XFree86/FVWM/XFM desktop, clean shutdown, and read-only qcow2/ext2 checks.
 
-## What it reads
+Each build keeps its logs, screenshots, and a hash manifest under `build/session-*`. A failed build leaves those diagnostics and does not publish an output image. The committed [installer completion](screenshots/installer-complete.png) and [version](screenshots/version.png) captures came from a complete fresh build on QEMU 8.2.2.
 
-- `hostname` and `uname` for the machine name, kernel, and architecture
-- `/proc/meminfo` for memory use
-- `df -k /` for root disk use
-- `/proc/uptime` for uptime
+## About this project
 
-The OS name and release are fixed because this script is specifically for TAMU Linux 1.0D. The ASCII logo is original text; no Texas A&M artwork is included.
+`tamu-fetch` is a small original shell script for the guest's Bash 1.13. It reads the real guest's username, hostname, kernel, architecture, memory, root disk use, and uptime. The seven-row ASCII logo and color palette work on the old console; `NO_COLOR=1 tamu-fetch` disables color. This is an independent script, not Fastfetch or Neofetch.
 
-## License
+The original media and built VM are **downloaded or generated locally and are not committed or released here**. The archive contains many packages with their own copyrights and licenses, and we found no blanket license for redistributing the whole distribution. The MIT [license](LICENSE) covers this repository's original automation, config, fetch script, and documentation. See [technical notes](docs/ARCHAEOLOGY.md) for the installer choices, XFree86 fix, provenance, and limits of reproducibility.
 
-MIT. See [LICENSE](LICENSE).
+The [Instagram-sized share image](social/instagram-post.png) and its [editable HTML](social/instagram-post.html) use an actual VM screenshot and label the QEMU guest.
