@@ -279,7 +279,9 @@ def stop_qemu(process, monitor):
 
 def install(media, disk, port, session, scratch):
     run("qemu-img", "create", "-f", "qcow2", str(disk), "256M")
-    monitor_path = session / "install-monitor.sock"
+    # Linux AF_UNIX paths are limited to 107 bytes. CI checkout paths can be
+    # much longer than a local clone, so keep monitor sockets in /tmp.
+    monitor_path = scratch / "install.sock"
     process = start_qemu(disk, media / "boot", port, monitor_path, session / "qemu-install.log")
     monitor = None
     try:
@@ -405,7 +407,7 @@ def png_dimensions(path):
 
 
 def smoke(disk, port, session, scratch):
-    monitor_path = session / "smoke-monitor.sock"
+    monitor_path = scratch / "smoke.sock"
     process = start_qemu(disk, None, port, monitor_path, session / "qemu-smoke.log")
     monitor = None
     try:
