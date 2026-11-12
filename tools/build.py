@@ -406,6 +406,31 @@ def png_dimensions(path):
     return struct.unpack(">II", header[16:24])
 
 
+def xfm_menu_text(ppm, scratch):
+    """Magnify the visible XFM menu; a terminal can cover the rest of its window."""
+    with ppm.open("rb") as stream:
+        if stream.readline() != b"P6\n":
+            raise RuntimeError("QEMU did not produce a P6 screenshot")
+        width, height = map(int, stream.readline().split())
+        if stream.readline() != b"255\n":
+            raise RuntimeError("Unexpected PPM color depth")
+        pixels = stream.read()
+    if len(pixels) != width * height * 3:
+        raise RuntimeError("Incomplete QEMU screenshot")
+    # The original FVWM layout puts XFM's menu at the left edge near row 150.
+    # Fourfold nearest-neighbor scaling makes its 8-pixel font legible to OCR.
+    left, top, right, bottom, scale = 0, 110, min(130, width), min(190, height), 4
+    cropped = scratch / "xfm-menu.ppm"
+    with cropped.open("wb") as stream:
+        stream.write(("P6\n%d %d\n255\n" % ((right - left) * scale,
+                                                  (bottom - top) * scale)).encode("ascii"))
+        for y in range(top, bottom):
+            row = pixels[(y * width + left) * 3:(y * width + right) * 3]
+            enlarged = b"".join(row[x:x + 3] * scale for x in range(0, len(row), 3))
+            stream.write(enlarged * scale)
+    return run("tesseract", str(cropped), "stdout", "--psm", "6", timeout=20).stdout
+
+
 def smoke(disk, port, session, scratch):
     monitor_path = scratch / "smoke.sock"
     process = start_qemu(disk, None, port, monitor_path, session / "qemu-smoke.log")
@@ -430,26 +455,26 @@ def smoke(disk, port, session, scratch):
                  seconds=30, reader=right_pane_text)
         shutil.copy2(monitor.capture(), session / "evidence" / "fetch.png")
         monitor.type("startx")
-        deadline = time.monotonic() + 30
+        deadline = time.monotonic() + 45
+        entered_x = False
+        desktop_text = ""
         while time.monotonic() < deadline:
             screenshot = monitor.capture()
             if png_dimensions(screenshot) == (640, 480):
-                time.sleep(2)
-                desktop = session / "evidence" / "desktop.png"
-                shutil.copy2(monitor.capture(), desktop)
-                desktop_text = run("tesseract", str(desktop), "stdout", "--psm", "11",
-                                   timeout=20).stdout
-                if not re.search(r"File\s+Folder\s+View", desktop_text, re.I):
-                    raise RuntimeError("X entered 640x480, but the XFM menu was not visible in the desktop screenshot")
-                log(session, "XFree86 VGA16 desktop reached 640x480")
-                break
+                entered_x = True
+                desktop_text = xfm_menu_text(monitor.capture("ppm"), scratch)
+                if re.search(r"File\s+Folder", desktop_text, re.I):
+                    shutil.copy2(monitor.capture(), session / "evidence" / "desktop.png")
+                    log(session, "XFree86 VGA16 desktop with XFM reached 640x480")
+                    break
             time.sleep(0.5)
         else:
             failure = session / "evidence" / "desktop-failure.png"
             shutil.copy2(monitor.capture(), failure)
-            (session / "evidence" / "desktop-failure.txt").write_text(
-                run("tesseract", str(failure), "stdout", "--psm", "11", timeout=20).stdout,
-                encoding="utf-8")
+            (session / "evidence" / "desktop-failure.txt").write_text(desktop_text,
+                                                                        encoding="utf-8")
+            if entered_x:
+                raise RuntimeError("X entered 640x480, but its XFM menu did not become visible")
             raise RuntimeError("XFree86 did not enter its 640x480 desktop")
         monitor.key("ctrl-alt-backspace")
         wait_for(monitor, r"bash", "returned-from-X", session)
