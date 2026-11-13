@@ -1,5 +1,7 @@
 # TAMU Linux 1.0D in QEMU
 
+[![Rebuild TAMU Linux 1.0D](https://github.com/clmoon2/tamu-linux-revival/actions/workflows/rebuild.yml/badge.svg)](https://github.com/clmoon2/tamu-linux-revival/actions/workflows/rebuild.yml)
+
 Rebuild the **1994 TAMU Linux 1.0D** release from its archived boot floppy and 21 binary floppies, then run it in an isolated QEMU 486 VM. The builder downloads and checks the original media, drives the original installer, applies a small XFree86 VGA16 configuration, installs `tamu-fetch`, and boots the result to check the kernel, shell, fetch output, and desktop.
 
 This is the original Linux 1.0-era system inside a VM. It is not a port to current laptop hardware or the earlier 1992 TAMU release.
