@@ -1,0 +1,12 @@
+--- a/arch/x86/ia32/ia32_aout.c
++++ b/arch/x86/ia32/ia32_aout.c
+@@ -296,6 +296,9 @@
+ 	/* OK, This is the point of no return */
+ 	set_personality(PER_LINUX);
+ 	set_personality_ia32(false);
++	/* 1994 ZMAGIC binaries have unaligned text and execute from page zero.
++	 * Their anonymous text mapping needs execute permission on NX systems. */
++	current->personality |= READ_IMPLIES_EXEC;
+ 
+ 	setup_new_exec(bprm);
+ 	install_exec_creds(bprm);

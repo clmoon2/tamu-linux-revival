@@ -6,7 +6,16 @@ host=`hostname`
 kernel=`uname -sr`
 arch=`uname -m`
 # On Linux 1.0, awk cannot read these proc files directly; cat can.
-mem=`cat /proc/meminfo | awk 'NR == 2 { printf "%.1f / %.1f MiB", $3 / 1048576, $2 / 1048576 }'`
+# Its "Mem:" row uses bytes. Later kernels expose MemTotal/MemAvailable in KiB.
+mem=`cat /proc/meminfo | awk '
+NR == 2 && $1 == "Mem:" { used = $3 / 1048576; total = $2 / 1048576; old = 1 }
+$1 == "MemTotal:" { total = $2 / 1024 }
+$1 == "MemAvailable:" { available = $2 / 1024 }
+$1 == "MemFree:" { free = $2 / 1024 }
+END {
+    if (!old && total > 0) used = total - (available > 0 ? available : free)
+    printf "%.1f / %.1f MiB", used, total
+}'`
 disk=`df -k / | awk 'NR == 2 { printf "%.0f / %.0f MiB", $3 / 1024, $2 / 1024 }'`
 uptime=`cat /proc/uptime | awk '{ hours = int($1 / 3600); mins = int(($1 % 3600) / 60); printf "%dh %dm", hours, mins }'`
 

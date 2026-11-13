@@ -4,7 +4,7 @@
 
 Rebuild the **1994 TAMU Linux 1.0D** release from its archived boot floppy and 21 binary floppies, then run it in an isolated QEMU 486 VM. The builder downloads and checks the original media, drives the original installer, applies a small XFree86 VGA16 configuration, installs `tamu-fetch`, and boots the result to check the kernel, shell, fetch output, and desktop.
 
-This is the original Linux 1.0-era system inside a VM. It is not a port to current laptop hardware or the earlier 1992 TAMU release.
+The VM uses the original Linux 1.0-era kernel. An [experimental native UEFI USB build](docs/NATIVE_USB.md) runs the original TAMU userland on a patched Linux 4.19.325 compatibility kernel. It has been tested in QEMU; a physical laptop has not yet been tested. Neither route is the earlier 1992 TAMU release.
 
 | Original console | Original XFree86/FVWM/XFM desktop |
 | --- | --- |
@@ -39,6 +39,8 @@ The guest has no network device. VNC listens only on the host loopback address. 
 Each build keeps its logs, screenshots, and a hash manifest under `build/session-*`. A failed build leaves those diagnostics and does not publish an output image. The committed [installer completion](screenshots/installer-complete.png) and [version](screenshots/version.png) captures came from a complete fresh build on QEMU 8.2.2.
 
 ## About this project
+
+For a future x86-64 laptop, see the [native USB build and installation guide](docs/NATIVE_USB.md). It explains the tested boot path, the old kernel's limits, and how to try USB boot before installing to a drive.
 
 `tamu-fetch` is a small original shell script for the guest's Bash 1.13. It reads the real guest's username, hostname, kernel, architecture, memory, root disk use, and uptime. The seven-row ASCII logo and color palette work on the old console; `NO_COLOR=1 tamu-fetch` disables color. This is an independent script, not Fastfetch or Neofetch.
 
